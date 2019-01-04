@@ -14,8 +14,8 @@ The server.py expects from the user a python code, to concatenate it with a scri
 	import Collection
 	keys = list(__builtins__.__dict__.keys())
 	for k in keys:
-			if k != 'id' and k != 'hex' and k != 'print' and k != 'range':
-					del __builtins__.__dict__[k]
+            if k != 'id' and k != 'hex' and k != 'print' and k != 'range':
+                del __builtins__.__dict__[k]
 	
 
 By reading the prefix above, we know that we can only work with the 'id','hex','print','range' python's builtins and the custome Collection module which written in C using the CPython API- this is the .so file we mentioned before.
@@ -32,9 +32,9 @@ Points: 150
 The first called functions in the CPython module is the PyInit_Collection, which is equivalent to the "main" function of any .so or .dll, that being called once the library is loaded.
 
 For each created instance of this class several methods are called:
-	sub_1700 - we gave it the name: handle_object_creation
+	sub_1700 - we gave it the name: handle_object_creation. 
 
-This function verifies that the input is a dictionary not larger than 32 members, parses the tuples and creates the structers:
+This function verifies that the input is a dictionary not larger than 32 members, parses the tuples and creates the structers by calling their init functions:
 	Nodes- a double linked list, with a pointer to a record struct.
 	Record- the record of the member- the key, the value and the type (long, list,or dict)
 
@@ -54,6 +54,8 @@ Basically, that’s what we need to know before we understand the vulnerablitty.
 After digging into nearly every function in the library, we checked again the handle_object_creation function and noticed something we haven't noticed before.
 
 As was described earlier, this function parses the input dictionary, but we didn't mention that it works with the _PyDict_Next method of the Dictionary Object.
+
+    Iterate over all key-value pairs in the dictionary p. The Py_ssize_t referred to by ppos must be initialized to 0 prior to the first call to this function to start the iteration; the function returns true for each pair in the dictionary, and false once all pairs have been reported. The parameters pkey and pvalue should either point to PyObject* variables that will be filled in with each key and value, respectively, or may be NULL. Any references returned through them are borrowed. ppos should not be altered during iteration. Its value represents offsets within the internal dictionary structure, and since the structure is sparse, the offsets are not consecutive.
 
 Based on its documentation we understood that each dictionary member has an internal indexing system in the dictionary structure. Later on, the Collection library uses it as an offset into an array and initializing for this Collection dictionary members.
 We also know that we can't create a collection from a dictionary bigger than 32 members, which is exactly the size of the array buffer in memory.
