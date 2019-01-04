@@ -1,7 +1,7 @@
 
 **Disclaimer** 
 
-I worked on this challenge alongside Yochai Eisenrich. 
+I worked on this challenge alongside @Echelon__H
 A great researcher and a good friend. 
 We haven't finished the challenge on time, just a few hours after the CTF was over. After the write-ups started flowing we noticed that we solved it with an unintended bug, so we decided to write about it because it's kinda cool.
 
