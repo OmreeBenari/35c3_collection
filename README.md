@@ -131,7 +131,7 @@ so, we needed to hold a list with pointers to the collections to prevent from th
 
 Now we need to create our own PyTypeObject to point to, which will be used when we will call 'get' on the overwritten object.
 
-The function which will be called first is the PyObject_GenericSetAttr, it is in offset 0x13h in the PyTypeObject.tp_getattro slot. 
+The function which will be called first is the PyObject_GenericSetAttr, it is in offset 0x13h, in the PyTypeObject.tp_getattro slot. 
 
 If we will overwrite that pointer we will get a jump primitive to our own code!
 
