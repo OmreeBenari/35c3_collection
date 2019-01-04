@@ -8,7 +8,7 @@ We haven't finished the challenge on time, just a few hours after the CTF was ov
 The challenge consists of several files. The authors provided a Python3.6 file, an .so called Collection.cpython-36m-x86_64-linux-gnu.so, a server-side program called server.py which we communicate with and a test.py file which consists of an example of how to use the Collection module.
 
 The server.py expects from the user a python code, to concatenate it with a script prefix:
-	"
+	
 	from sys import modules
 	del modules['os']
 	import Collection
@@ -16,7 +16,7 @@ The server.py expects from the user a python code, to concatenate it with a scri
 	for k in keys:
 			if k != 'id' and k != 'hex' and k != 'print' and k != 'range':
 					del __builtins__.__dict__[k]
-	"
+	
 
 By reading the prefix above, we know that we can only work with the 'id','hex','print','range' python's builtins and the custome Collection module which written in C using the CPython API- this is the .so file we mentioned before.
 
