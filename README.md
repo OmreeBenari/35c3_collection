@@ -65,6 +65,12 @@ As was described earlier, this function parses the input dictionary, but we didn
 Based on its documentation we understood that each dictionary member has an internal indexing system in the dictionary structure. Later on, the Collection library uses it as an offset into an array and initializing for this Collection dictionary members.
 We also know that we can't create a collection from a dictionary bigger than 32 members, which is exactly the size of the array buffer in memory.
 
+    call PyDict_Next
+    test eax, eax
+    ...
+    mov [r14+rax*8+10h], rdi
+     
+    
 What if we can change the indexing of the members in the dictionary to overflow this buffer?
 
 
